@@ -1,0 +1,11 @@
+target/
+.classpath
+.project
+.settings/
+.factorypath
+.apt_generated/
+.sts4-cache/
+.idea/
+*.iml
+.vscode/
+*.log
