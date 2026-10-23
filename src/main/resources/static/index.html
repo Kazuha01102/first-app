@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Java計算機</title>
+</head>
+<body>
+    <h1>Java計算機</h1>
+    <p>数字A:<input type="number" id="a" step="any"></p>
+    <p>数字B:<input type="number" id="b" step="any"></p>
+    <select id="op">
+        <option value="add">足し算(+)</option>
+        <option value="subtract">引き算(-)</option>
+        <option value="multiply">かけ算(*)</option>
+        <option value="divide">わり算(/)</option>
+    </select>
+    <button onclick="calculate()">計算する</button>
+    <h2 id="result">計算結果がここに出ます</h2>
+    <script>
+        async function calculate() {
+            const a = document.getElementById("a").value;
+            const b = document.getElementById("b").value;
+            const op = document.getElementById("op").value;
+            if (a === "" || b === "") {
+                document.getElementById("result").textContent = "数字を入力してください";
+                return;
+            }
+            const url = "/calculate?a=" + encodeURIComponent(a)
+                      + "&b=" + encodeURIComponent(b)
+                      + "&op=" + encodeURIComponent(op);
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error("HTTP " + response.status);
+                }
+                const data = await response.text();
+                document.getElementById("result").textContent = data;
+            } catch (error) {
+                console.error(error);
+                document.getElementById("result").textContent = "エラー:" + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
