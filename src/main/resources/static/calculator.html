@@ -1,0 +1,5 @@
+<!doctype html>
+<html lang="ja">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Calculator / SERVER CONTROL</title><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/css/dashboard.css"><script src="/js/calculator.js" defer></script></head>
+<body class="calculator-page"><main class="panel calculator-card"><a class="back-link" href="/">← Monitoring dashboard</a><div class="eyebrow">FIRST-APP / TOOLS</div><h1>Java計算機<span class="heading-dot">.</span></h1><p>既存のSpring Boot計算APIを使った四則計算機。</p><form id="calculator" class="calculator-form"><label for="a">数字 A<input type="number" id="a" step="any" required></label><label for="op">計算方法<select id="op"><option value="add">足し算 (+)</option><option value="subtract">引き算 (−)</option><option value="multiply">かけ算 (×)</option><option value="divide">わり算 (÷)</option></select></label><label for="b">数字 B<input type="number" id="b" step="any" required></label><button class="button" type="submit">計算する</button><output id="result" class="calculator-result" aria-live="polite">数字を入力してください</output></form></main></body>
+</html>

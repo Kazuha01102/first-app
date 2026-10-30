@@ -1,45 +1,65 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<title>Java計算機</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b101b">
+  <meta name="description" content="ローカルLinux環境とSpring Boot JVMの監視ダッシュボード">
+  <title>SERVER CONTROL / Monitoring Dashboard</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <script type="module" src="/js/dashboard.js"></script>
 </head>
 <body>
-    <h1>Java計算機</h1>
-    <p>数字A:<input type="number" id="a" step="any"></p>
-    <p>数字B:<input type="number" id="b" step="any"></p>
-    <select id="op">
-        <option value="add">足し算(+)</option>
-        <option value="subtract">引き算(-)</option>
-        <option value="multiply">かけ算(*)</option>
-        <option value="divide">わり算(/)</option>
-    </select>
-    <button onclick="calculate()">計算する</button>
-    <h2 id="result">計算結果がここに出ます</h2>
-    <script>
-        async function calculate() {
-            const a = document.getElementById("a").value;
-            const b = document.getElementById("b").value;
-            const op = document.getElementById("op").value;
-            if (a === "" || b === "") {
-                document.getElementById("result").textContent = "数字を入力してください";
-                return;
-            }
-            const url = "/calculate?a=" + encodeURIComponent(a)
-                      + "&b=" + encodeURIComponent(b)
-                      + "&op=" + encodeURIComponent(op);
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error("HTTP " + response.status);
-                }
-                const data = await response.text();
-                document.getElementById("result").textContent = data;
-            } catch (error) {
-                console.error(error);
-                document.getElementById("result").textContent = "エラー:" + error.message;
-            }
-        }
-    </script>
+  <a class="skip-link" href="#main">メインコンテンツへ</a>
+  <aside class="sidebar">
+    <a class="brand" href="/" aria-label="Server Control ホーム"><span class="brand-symbol"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v5H4zm0 9h16v5H4zM7 8.5h.01M7 17.5h.01M11 8.5h6M11 17.5h6"/></svg></span><span>SERVER<span class="brand-light">CONTROL</span><small>MONITORING CONSOLE</small></span></a>
+    <div class="workspace"><span class="workspace-mark">S</span><div>first-app<small>Local workspace</small></div><span class="workspace-chevron">⌄</span></div>
+    <div class="nav-label">MONITOR</div>
+    <nav class="nav" aria-label="監視ナビゲーション">
+      <a class="nav-link active" href="#overview"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Overview<span class="nav-dot"></span></a>
+      <a class="nav-link" href="#resources"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 1v5m6-5v5M9 18v5m6-5v5M1 9h5m-5 6h5m12-6h5m-5 6h5"/></svg>Resources</a>
+      <a class="nav-link" href="#runtime"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h13v8a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4zm13 1h2a3 3 0 0 1 0 6h-2M7 3v1m4-2v2m4-1v1"/></svg>JVM runtime</a>
+      <a class="nav-link" href="#network"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c5 5 5 11 0 16-5-5-5-11 0-16"/></svg>Network</a>
+      <a class="nav-link" href="#logs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5zM8 7h8M8 11h8M8 15h5"/></svg>Application logs<span class="nav-count" id="error-count" hidden>0</span></a>
+    </nav>
+    <div class="nav-label tools-label">TOOLS</div>
+    <a class="nav-link calculator-link" href="/calculator.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8M8 11h1m3 0h1m3 0h.1M8 15h1m3 0h1m3 0h.1M8 19h1m3 0h1m3 0h.1"/></svg>Calculator<span class="external-arrow">↗</span></a>
+    <div class="sidebar-bottom"><div class="local-label"><span class="status-dot"></span>LOCAL ENVIRONMENT</div><p id="sidebar-environment">環境を確認中…</p><small>Loopback access only</small><div class="sidebar-version"><span>Spring Boot</span><span>4.1.1</span></div></div>
+  </aside>
+  <div class="app-shell">
+    <header class="topbar"><div class="breadcrumb">Workspace <span>/</span> first-app <span>/</span><strong>Overview</strong></div><div class="topbar-right"><span class="local-pill"><span class="status-dot"></span> LOCAL</span><span class="avatar" aria-label="ローカル利用">SC</span></div></header>
+    <main id="main">
+      <section id="overview" class="page-heading"><div><div class="eyebrow">YOUR INFRASTRUCTURE, AT A GLANCE</div><h1>Monitoring dashboard<span class="heading-dot">.</span></h1><p>サーバーとアプリケーションの状態を、ひとつの場所で。</p></div><div class="heading-actions"><button id="auto-refresh" class="button subtle" type="button" aria-pressed="true"><span class="pulse-dot"></span><span id="auto-label">Live · 5秒更新</span></button><button id="refresh" class="button" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12-1l2 3M4 15l2 3a7 7 0 0 0 12-1"/></svg>更新</button></div></section>
+      <div id="connection-error" class="alert error" role="alert" hidden>APIに接続できません。表示値は最終取得時のものです。自動的に再接続します。</div>
+      <div id="partial-error" class="alert warning" role="status" hidden></div>
+      <div id="log-alert" class="alert error" role="alert" hidden></div>
+      <section class="server-strip panel" aria-label="サーバー概要">
+        <div class="server-name"><span class="server-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="7" rx="2"/><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M7 6.5h.1M7 17.5h.1M12 6.5h5M12 17.5h5"/></svg></span><div><strong id="application-name">first-app</strong><span class="server-address">127.0.0.1:8081</span></div><span id="connection-status" class="status-badge loading" role="status">接続中</span></div>
+        <div class="server-facts"><div><span>OPERATING SYSTEM</span><strong id="os-name">—</strong></div><div><span>JAVA RUNTIME</span><strong id="java-version">—</strong></div><div><span>SYSTEM UPTIME</span><strong id="system-uptime">—</strong></div></div>
+        <div class="last-update"><span>LAST SYNC</span><time id="last-update">—</time></div>
+      </section>
+      <div class="section-title"><h2>System overview</h2><span id="scope-label">実データを取得中</span></div>
+      <section class="metric-grid" aria-label="主要指標">
+        <article class="metric-card panel"><div class="metric-label"><span>CPU USAGE</span><span class="metric-icon blue">⌁</span></div><div class="metric-value" id="cpu-value">—</div><div class="meter"><span id="cpu-meter"></span></div><div class="metric-foot"><span id="cpu-cores">— logical cores</span><span class="source-tag">LINUX</span></div></article>
+        <article class="metric-card panel"><div class="metric-label"><span>MEMORY USAGE</span><span class="metric-icon cyan">▤</span></div><div class="metric-value" id="memory-value">—</div><div class="meter cyan-meter"><span id="memory-meter"></span></div><div class="metric-foot"><span id="memory-total-summary">— used</span><span class="source-tag">LINUX</span></div></article>
+        <article class="metric-card panel"><div class="metric-label"><span>JVM HEAP</span><span class="metric-icon violet">◈</span></div><div class="metric-value bytes-value" id="heap-value">—</div><div class="meter violet-meter"><span id="heap-meter"></span></div><div class="metric-foot"><span id="heap-max-summary">— max heap</span><span class="source-tag">JVM</span></div></article>
+        <article class="metric-card panel"><div class="metric-label"><span>API RESPONSE</span><span class="metric-icon green">↔</span></div><div class="metric-value bytes-value" id="response-value">—</div><div class="response-caption"><span class="small-dot"></span>監視APIの平均応答時間</div><div class="metric-foot"><span id="request-summary">— completed requests</span><span class="source-tag">APP</span></div></article>
+      </section>
+      <section id="resources" class="resource-section"><div class="section-title"><h2>Resource performance <span class="live-label"><span class="pulse-dot"></span>LIVE</span></h2><div class="range-picker" role="group" aria-label="グラフ表示期間"><button data-range="60" type="button" aria-pressed="false">1分</button><button data-range="300" class="selected" type="button" aria-pressed="true">5分</button><button data-range="900" type="button" aria-pressed="false">15分</button></div></div>
+        <div class="chart-grid">
+          <article class="panel chart-card"><div class="panel-heading"><div><span class="legend-dot blue-dot"></span><h3>CPU utilization</h3></div><strong id="cpu-chart-current">—</strong></div><div class="chart-layout"><div class="y-axis" aria-hidden="true"><span>100%</span><span>75%</span><span>50%</span><span>25%</span><span>0%</span></div><div class="chart-area"><svg id="cpu-chart" class="chart" viewBox="0 0 600 160" preserveAspectRatio="none" role="img" aria-label="Linux CPU使用率の実測値グラフ"></svg><div id="cpu-empty" class="chart-empty">サンプルを収集中…</div></div></div><div class="x-axis" id="cpu-axis"><span>—</span><span>—</span><span>—</span></div><div class="chart-stats"><span>AVERAGE <strong id="cpu-average">—</strong></span><span>PEAK <strong id="cpu-peak">—</strong></span><span class="sample-count" id="sample-count">— samples</span></div></article>
+          <article class="panel chart-card"><div class="panel-heading"><div><span class="legend-dot cyan-dot"></span><h3>Memory utilization</h3></div><strong id="memory-chart-current">—</strong></div><div class="chart-layout"><div class="y-axis" aria-hidden="true"><span>100%</span><span>75%</span><span>50%</span><span>25%</span><span>0%</span></div><div class="chart-area"><svg id="memory-chart" class="chart" viewBox="0 0 600 160" preserveAspectRatio="none" role="img" aria-label="Linuxメモリ使用率の実測値グラフ"></svg><div id="memory-empty" class="chart-empty">サンプルを収集中…</div></div></div><div class="x-axis" id="memory-axis"><span>—</span><span>—</span><span>—</span></div><div class="chart-stats"><span>USED <strong id="memory-used">—</strong></span><span>AVAILABLE <strong id="memory-available">—</strong></span></div></article>
+        </div>
+      </section>
+      <div class="details-grid">
+        <section id="runtime" class="panel detail-card"><div class="panel-heading"><div><span class="detail-symbol violet">◈</span><h2>JVM runtime</h2></div><span class="tag">JAVA PROCESS</span></div><dl class="detail-list"><div><dt>Heap used / max</dt><dd id="jvm-heap">—</dd></div><div><dt>Non-heap memory</dt><dd id="non-heap">—</dd></div><div><dt>Live threads</dt><dd><span id="thread-count">—</span><span class="unit-label"> threads</span></dd></div><div><dt>JVM uptime</dt><dd id="jvm-uptime">—</dd></div><div><dt>Java version</dt><dd id="jvm-java">—</dd></div></dl><div class="card-note">このJavaプロセスの値です。Linux全体のメモリとは異なります。</div></section>
+        <section id="network" class="panel detail-card"><div class="panel-heading"><div><span class="detail-symbol cyan">⇅</span><h2>Network &amp; HTTP</h2></div><span id="network-interface" class="tag">LINUX</span></div><div class="traffic-grid"><div><span class="traffic-label"><span class="cyan">↓</span> RECEIVED</span><strong id="network-rx">—</strong><small id="network-rx-total">— total</small></div><div><span class="traffic-label"><span class="blue">↑</span> SENT</span><strong id="network-tx">—</strong><small id="network-tx-total">— total</small></div></div><dl class="detail-list compact"><div><dt>HTTP requests <small>JVM起動後</small></dt><dd id="http-requests">—</dd></div><div><dt>HTTP errors <small>4xx + 5xx</small></dt><dd id="http-errors">—</dd></div><div><dt>Last API response</dt><dd id="last-api-response">—</dd></div></dl><div class="card-note">通信量はLinuxの非ループバックIF合計。HTTPはこのアプリのみ。</div></section>
+        <section class="panel detail-card memory-detail"><div class="panel-heading"><div><span class="detail-symbol blue">▤</span><h2>Linux memory</h2></div><span class="tag">SYSTEM</span></div><div class="memory-ring" id="memory-ring"><div><strong id="memory-ring-value">—</strong><span>IN USE</span></div></div><dl class="detail-list compact"><div><dt>Total memory</dt><dd id="memory-total">—</dd></div><div><dt>Available memory</dt><dd id="memory-free-detail">—</dd></div><div><dt>Swap used / total</dt><dd id="swap">—</dd></div></dl></section>
+      </div>
+      <section id="logs" class="logs-section"><div class="section-title"><h2>Application logs <span class="tag" id="logs-count">— entries</span></h2><div class="logs-tools"><label class="sr-only" for="log-search">ログを検索</label><input id="log-search" type="search" placeholder="ログを検索…" maxlength="100"><label class="sr-only" for="log-level">ログレベル</label><select id="log-level"><option value="ALL">All levels</option><option value="INFO">INFO</option><option value="WARN">WARN</option><option value="ERROR">ERROR</option></select></div></div><div class="panel log-panel"><div class="log-table-heading"><span>TIME</span><span>LEVEL</span><span>MESSAGE</span></div><div id="log-list" aria-label="最近のアプリケーションログ"><div class="log-empty">ログを取得中…</div></div><div class="log-panel-footer"><span><span class="pulse-dot"></span>アプリケーションログ · メモリ内の直近300件</span><span>Newest first</span></div></div></section>
+      <footer class="page-footer"><span>SERVER CONTROL <span class="footer-slash">/</span> Monitoring Dashboard</span><span id="footer-scope">Linux system metrics + JVM process metrics</span><span>LOCAL USE ONLY</span></footer>
+    </main>
+  </div>
 </body>
 </html>
